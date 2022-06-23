@@ -1,4 +1,4 @@
-package net.ivoah.vial
+import net.ivoah.vial._
 
 object Test extends App {
   val server = Server(Router {

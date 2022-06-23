@@ -1,6 +1,8 @@
 package net.ivoah.vial
 
 import java.nio.file._
+import java.nio.file.spi.FileSystemProvider
+import scala.jdk.CollectionConverters._
 
 case class Response(
                      data: Array[Byte],
@@ -14,6 +16,18 @@ object Response {
   def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(content.getBytes, headers, status_code)
 
   def forFile(path: Path, mime: Option[String] = None): Response = {
+    val uri = path.toUri
+    if (uri.getScheme == "jar") {
+      for (provider <- FileSystemProvider.installedProviders.asScala) {
+        if (provider.getScheme.equalsIgnoreCase("jar")) try provider.getFileSystem(uri)
+        catch {
+          case e: FileSystemNotFoundException =>
+            // in this case we need to initialize it first:
+            provider.newFileSystem(uri, java.util.Collections.emptyMap)
+        }
+      }
+    }
+
     if (Files.exists(path)) {
       val content = Files.readAllBytes(path)
       Response(content, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))))

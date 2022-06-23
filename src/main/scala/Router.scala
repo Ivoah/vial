@@ -20,8 +20,12 @@ case class Router(routes: PartialFunction[(String, String, Request), Response], 
 
       routes.lift((t.getRequestMethod, t.getRequestURI.getPath, request)).getOrElse(Response.NotFound())
     } catch {
-      case e: Exception => Response.InternalServerError(e)
+      case e: Exception =>
+        e.printStackTrace()
+        Response.InternalServerError(e)
     }
+
+    println(s"  => ${response.status_code}")
 
     response.headers.foreach{case (k, vs) => vs.foreach(v => t.getResponseHeaders.add(k, v))}
 //    t.sendResponseHeaders(response.status_code, response.data.length)

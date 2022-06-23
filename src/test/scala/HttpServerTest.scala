@@ -1,5 +1,3 @@
-package net.ivoah.vial
-
 import com.sun.net.httpserver._
 import java.net.InetSocketAddress
 
