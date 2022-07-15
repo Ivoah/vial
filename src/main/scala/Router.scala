@@ -1,7 +1,7 @@
 package net.ivoah.vial
 
 import scala.jdk.CollectionConverters._
-import com.sun.net.httpserver._
+import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 
 case class Router(routes: PartialFunction[(String, String, Request), Response], staticRoutes: Map[String, String] = Map()) {
   val handler: HttpHandler = (t: HttpExchange) => {

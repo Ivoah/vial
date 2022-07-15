@@ -36,6 +36,11 @@ object Response {
     }
   }
 
+  def fromResource(name: String): Response = Option(getClass.getResource(name)) match {
+    case Some(url) => forFile(Paths.get(url.toURI))
+    case None => NotFound()
+  }
+
   def Redirect(url: String): Response = Response(s"303 see other", headers = Map("Location" -> Seq(url)), status_code = 303)
   def Unauthorized(realm: String = "private"): Response = Response("401 unauthorized", headers = Map("WWW-Authenticate" -> Seq(s"Basic realm=$realm")), status_code = 401)
   def NotFound(msg: String = ""): Response = Response(s"404 not found\n$msg", status_code = 404)
