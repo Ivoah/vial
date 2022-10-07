@@ -10,9 +10,9 @@ case class Response(
                      status_code: Int = 200)
 
 object Response {
-  def apply(content: String): Response = Response(content.getBytes)
+  def apply(content: String): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")))
   def apply(content: String, headers: Map[String, Seq[String]]): Response = Response(content.getBytes, headers)
-  def apply(content: String, status_code: Int): Response = Response(content.getBytes, status_code = status_code)
+  def apply(content: String, status_code: Int): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), status_code = status_code)
   def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(content.getBytes, headers, status_code)
 
   def forFile(path: Path, mime: Option[String] = None): Response = {
@@ -43,10 +43,10 @@ object Response {
 
   def Redirect(url: String): Response = Response(s"303 see other", headers = Map("Location" -> Seq(url)), status_code = 303)
   def Unauthorized(realm: String = "private"): Response = Response("401 unauthorized", headers = Map("WWW-Authenticate" -> Seq(s"Basic realm=$realm")), status_code = 401)
-  def NotFound(msg: String = ""): Response = Response(s"404 not found\n$msg", status_code = 404)
+  def NotFound(msg: String = ""): Response = Response(s"404 not found\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 404)
   def InternalServerError(e: Exception): Response = Response(s"""500 internal server error
                                                                 |
                                                                 |${e.toString}
                                                                 |${e.getStackTrace.map("... " + _).mkString("\n")}
-                                                                |""".stripMargin, status_code = 500)
+                                                                |""".stripMargin, headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 500)
 }
