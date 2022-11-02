@@ -1,7 +1,7 @@
 package net.ivoah.vial
 
 import scala.jdk.CollectionConverters._
-import java.net.URLDecoder
+import java.net.URLEncoder
 import com.sun.net.httpserver.{HttpHandler, HttpExchange}
 
 case class Router(routes: PartialFunction[(String, String, Request), Response], staticRoutes: Map[String, String] = Map()) {
@@ -14,7 +14,7 @@ case class Router(routes: PartialFunction[(String, String, Request), Response], 
           case (key, value) => key -> value.asScala.toSeq
         }.toMap,
         params = Option(t.getRequestURI.getQuery).getOrElse("").split('&').collect {
-          case s"$key=$value" => key -> URLDecoder.decode(value)
+          case s"$key=$value" => key -> URLEncoder.encode(value, "UTF-8")
         }.toMap,
         t.getRequestBody.readAllBytes()
       )

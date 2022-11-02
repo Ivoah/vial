@@ -1,7 +1,9 @@
 ThisBuild / organization := "net.ivoah"
-ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / version := "0.2.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / scalaVersion := "3.2.0"
+
+ThisBuild / scalacOptions += "-deprecation"
 
 lazy val root = (project in file("."))
   .settings(
