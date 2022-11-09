@@ -1,14 +1,49 @@
 package net.ivoah.vial
 
-import com.sun.net.httpserver._
-import java.net.InetSocketAddress
+import jakarta.servlet.http._
+import org.eclipse.jetty.server._
+import org.eclipse.jetty.unixdomain.server.UnixDomainServerConnector
+import org.eclipse.jetty.server.handler.AbstractHandler
+import org.eclipse.jetty.util.thread.QueuedThreadPool
 
-case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000) {
-  private val server = HttpServer.create(new InetSocketAddress(host, port), 0)
-  server.createContext("/", router.handler)
+import java.net.InetSocketAddress
+import java.io.File
+
+case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, socket: Option[String] = None) {
+
+  // Create and configure a ThreadPool.
+  private val threadPool = new QueuedThreadPool
+  threadPool.setName("server")
+
+  // Create a Server instance.
+  private val server = new org.eclipse.jetty.server.Server(threadPool)
+
+  // Create a Connector to accept connections from clients.
+  private val connector = socket match {
+    case Some(path) =>
+      val socket = new File(path)
+      socket.deleteOnExit()
+      val connector = new UnixDomainServerConnector(server)
+      connector.setUnixDomainPath(socket.toPath)
+      connector
+    case None =>
+      val connector = new ServerConnector(server)
+      connector.setHost(host)
+      connector.setPort(port)
+      connector
+  }
+
+  // Add the Connector to the Server
+  server.addConnector(connector)
+
+  // Set a simple Handler to handle requests/responses.
+  server.setHandler(router.handler)
 
   def serve(): Unit = {
     server.start()
-    println(s"Listening on http://$host:$port")
+    socket match {
+      case Some(path) => println(s"Listening on unix socket ${path}")
+      case None => println(s"Listening on http://$host:$port")
+    }
   }
 }

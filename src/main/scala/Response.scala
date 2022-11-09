@@ -15,7 +15,7 @@ object Response {
   def apply(content: String, status_code: Int): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), status_code = status_code)
   def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(content.getBytes, headers, status_code)
 
-  def forFile(path: Path, mime: Option[String] = None): Response = {
+  def forFile(path: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {
     val uri = path.toUri
     if (uri.getScheme == "jar") {
       for (provider <- FileSystemProvider.installedProviders.asScala) {
@@ -30,7 +30,7 @@ object Response {
 
     if (Files.exists(path)) {
       val content = Files.readAllBytes(path)
-      Response(content, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))))
+      Response(content, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
     } else {
       NotFound()
     }

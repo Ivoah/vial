@@ -1,38 +1,42 @@
 package net.ivoah.vial
 
-import scala.jdk.CollectionConverters._
-import java.net.URLEncoder
-import com.sun.net.httpserver.{HttpHandler, HttpExchange}
+import scala.jdk.CollectionConverters.*
+import java.net.URLDecoder
+import jakarta.servlet.http.*
+import org.eclipse.jetty.server.{Request as JettyRequest, Response as JettyResponse}
+import org.eclipse.jetty.server.handler.AbstractHandler
 
-case class Router(routes: PartialFunction[(String, String, Request), Response], staticRoutes: Map[String, String] = Map()) {
-  val handler: HttpHandler = (t: HttpExchange) => {
-    val response = try {
-      println(s"${t.getRequestMethod} ${t.getRequestURI.getPath}")
+import scala.annotation.targetName
 
-      val request = Request(
-        headers = t.getRequestHeaders.asScala.map {
-          case (key, value) => key -> value.asScala.toSeq
-        }.toMap,
-        params = Option(t.getRequestURI.getQuery).getOrElse("").split('&').collect {
-          case s"$key=$value" => key -> URLEncoder.encode(value, "UTF-8")
-        }.toMap,
-        t.getRequestBody.readAllBytes()
-      )
+case class Router(routes: PartialFunction[(String, String, Request), Response]) {
+  val handler: AbstractHandler = new AbstractHandler() {
+    def handle(target: String, jettyRequest: JettyRequest, srequest: HttpServletRequest, sresponse: HttpServletResponse): Unit = {
+      val response = try {
+        val uri = URLDecoder.decode(srequest.getRequestURI, "UTF-8")
+        println(s"${srequest.getMethod} ${uri}")
 
-      routes.lift((t.getRequestMethod, t.getRequestURI.getPath, request)).getOrElse(Response.NotFound())
-    } catch {
-      case e: Exception =>
-        e.printStackTrace()
-        Response.InternalServerError(e)
+        val request = Request(
+          headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
+          params = Option(srequest.getQueryString).getOrElse("").split('&').collect {
+            case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
+          }.toMap,
+          srequest.getInputStream.readAllBytes()
+        )
+
+        routes.lift((srequest.getMethod, uri, request)).getOrElse(Response.NotFound())
+      } catch {
+        case e: Exception =>
+          e.printStackTrace()
+          Response.InternalServerError(e)
+      }
+
+      println(s"  => ${response.status_code}")
+
+      response.headers.foreach { case (k, vs) => vs.foreach(v => sresponse.setHeader(k, v)) }
+      sresponse.setStatus(response.status_code)
+      val os = sresponse.getOutputStream
+      os.write(response.data)
+      os.close()
     }
-
-    println(s"  => ${response.status_code}")
-
-    response.headers.foreach{case (k, vs) => vs.foreach(v => t.getResponseHeaders.add(k, v))}
-//    t.sendResponseHeaders(response.status_code, response.data.length)
-    t.sendResponseHeaders(response.status_code, 0)
-    val os = t.getResponseBody
-    os.write(response.data)
-    t.close()
   }
 }
