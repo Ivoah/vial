@@ -39,4 +39,6 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
       os.close()
     }
   }
+
+  def ++(other: Router): Router = Router(routes.orElse(other.routes))
 }
