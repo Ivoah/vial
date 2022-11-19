@@ -7,7 +7,7 @@ ThisBuild / scalacOptions += "-deprecation"
 
 val jettyVersion = "11.0.12"
 
-lazy val root = (project in file("."))
+lazy val vial = (project in file("vial"))
   .settings(
     name := "Vial",
     idePackagePrefix := Some("net.ivoah.vial"),
@@ -16,5 +16,13 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.eclipse.jetty" % "jetty-server" % jettyVersion,
       "org.eclipse.jetty" % "jetty-unixdomain-server" % jettyVersion
+    )
+  )
+
+lazy val example = (project in file("example"))
+  .dependsOn(vial)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %% "scalatags" % "0.12.0"
     )
   )
