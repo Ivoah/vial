@@ -13,7 +13,7 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
     def handle(target: String, jettyRequest: JettyRequest, srequest: HttpServletRequest, sresponse: HttpServletResponse): Unit = {
       val response = try {
         val uri = URLDecoder.decode(srequest.getRequestURI, "UTF-8")
-        println(s"${srequest.getMethod} ${uri}")
+        println(s"${srequest.getMethod} ${srequest.getRequestURL}${Option(srequest.getQueryString).map(qs => s"?$qs").getOrElse("")}")
 
         val request = Request(
           headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
