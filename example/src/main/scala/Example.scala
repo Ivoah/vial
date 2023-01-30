@@ -5,12 +5,16 @@ object Example {
   @main
   def main(): Unit = {
     val router = Router {
-      case ("GET", "/", request) => Response(
-        s"""<p>
-           |${Seq("/", "/hello", "/hello/$name", "/bye", "/auth", "/cookies").map(endpoint => s"<a href=\"$endpoint\">$endpoint</a>").mkString("<br>")}
-           |</p>
-           |${request.params.map { case k -> v => s"\"$k\" is \"$v\"" }.mkString("<br>")}
-           |""".stripMargin)
+      case ("GET", "/", request) => Response("<!DOCTYPE html>\n" + html(
+        head(tag("title")("Vial")),
+        body(
+          p(
+            for (endpoint <- Seq("/", "/hello", "/hello/$name", "/bye", "/auth", "/params?foo=bar&baz=biff", "/cookies")) yield frag(
+              a(href:=endpoint, endpoint), br()
+            )
+          )
+        )
+      ))
       case ("GET", "/hello", _) => Response("Hello!")
       case ("GET", s"/hello/$name", _) => Response(s"Hello $name!")
       case ("GET", "/bye", _) => Response("Goodbye :)")
@@ -19,6 +23,15 @@ object Example {
         case Some((username, password)) if username == "foo" && password == "bar" => Response("Authenticated!")
         case _ => Response.Unauthorized()
       }
+      case ("GET", "/params", request) => Response("<!DOCTYPE html>\n" + html(
+        head(tag("title")("Params")),
+        body(
+          h3("Params"),
+          ul(
+            request.params.toSeq.map{case (k, v) => li(s"${k}: ${v}")}
+          )
+        )
+      ))
       case ("GET", "/cookies", request) => Response("<!DOCTYPE html>\n" + html(
         head(tag("title")("Cookies")),
         body(
