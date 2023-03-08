@@ -9,11 +9,11 @@ import org.eclipse.jetty.server.handler.AbstractHandler
 import scala.annotation.targetName
 
 case class Router(routes: PartialFunction[(String, String, Request), Response]) {
-  val handler: AbstractHandler = new AbstractHandler() {
+  def handler(implicit logger: String => Unit): AbstractHandler = new AbstractHandler() {
     def handle(target: String, jettyRequest: JettyRequest, srequest: HttpServletRequest, sresponse: HttpServletResponse): Unit = {
       val response = try {
         val uri = URLDecoder.decode(srequest.getRequestURI, "UTF-8")
-        println(s"${srequest.getMethod} ${srequest.getRequestURL}${Option(srequest.getQueryString).map(qs => s"?$qs").getOrElse("")}")
+        logger(s"${srequest.getMethod} ${srequest.getRequestURL}${Option(srequest.getQueryString).map(qs => s"?$qs").getOrElse("")}")
 
         val request = Request(
           headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
@@ -30,7 +30,7 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
           Response.InternalServerError(e)
       }
 
-      println(s"  => ${response.status_code}")
+      logger(s"  => ${response.status_code}")
 
       response.headers.foreach { case (k, vs) => vs.foreach(v => sresponse.setHeader(k, v)) }
       sresponse.setStatus(response.status_code)

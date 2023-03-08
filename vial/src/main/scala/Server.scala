@@ -9,7 +9,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool
 import java.net.InetSocketAddress
 import java.io.File
 
-case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, socket: Option[String] = None) {
+case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, socket: Option[String] = None)(implicit val logger: String => Unit = println) {
 
   // Create and configure a ThreadPool.
   private val threadPool = new QueuedThreadPool
@@ -42,8 +42,8 @@ case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, 
   def serve(): Unit = {
     server.start()
     socket match {
-      case Some(path) => println(s"Listening on unix socket ${path}")
-      case None => println(s"Listening on http://$host:$port")
+      case Some(path) => logger(s"Listening on unix socket ${path}")
+      case None => logger(s"Listening on http://$host:$port")
     }
   }
 }
