@@ -21,3 +21,11 @@ ThisBuild / scmInfo := Some(
 ThisBuild / licenses := List(
   "MIT License" -> url("https://opensource.org/license/mit/")
 )
+
+ThisBuild / publishTo := {
+  val nexus = "https://s01.oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
+
+ThisBuild / publishMavenStyle := true
