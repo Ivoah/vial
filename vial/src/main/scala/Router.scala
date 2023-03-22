@@ -19,6 +19,7 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
           headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
           params = Option(srequest.getQueryString).getOrElse("").split('&').collect {
             case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
+            case bare => bare -> ""
           }.toMap,
           srequest.getInputStream.readAllBytes()
         )
