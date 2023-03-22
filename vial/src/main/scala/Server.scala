@@ -22,6 +22,10 @@ case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, 
   private val connector = socket match {
     case Some(path) =>
       val socket = new File(path)
+      if (socket.exists()) {
+        Console.err.println(s"Socket $path exists, exiting")
+        sys.exit(1)
+      }
       socket.deleteOnExit()
       val connector = new UnixDomainServerConnector(server)
       connector.setUnixDomainPath(socket.toPath)
