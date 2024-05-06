@@ -9,6 +9,16 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool
 import java.net.InetSocketAddress
 import java.io.File
 
+/** Main entry point of a vial application.
+  *
+  * Takes either a host/port combo, or the path to a unix domain socket.
+  * 
+  * @param router the router to use
+  * @param host host address to bind to, defaults to "127.0.0.1", ignored if `socket` is present.
+  * @param port port to bind to, defaults to 8000, ignored if `socket` is present.
+  * @param socket path to unix domain socket, optional.
+  * @param logger
+  */
 case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, socket: Option[String] = None)(implicit val logger: String => Unit = println) {
 
   // Create and configure a ThreadPool.
@@ -43,6 +53,9 @@ case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, 
   // Set a simple Handler to handle requests/responses.
   server.setHandler(router.handler)
 
+  /** Start the server.
+    * This will block while the server is running.
+    */
   def serve(): Unit = {
     server.start()
     socket match {
