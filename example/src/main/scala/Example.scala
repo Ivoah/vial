@@ -43,7 +43,7 @@ object Example {
           )
         )
       ))
-      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").set_cookie(Cookie(request.form("name"), request.form("value")))
+      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").with_cookie(Cookie(request.form("name"), request.form("value")))
     }
     val server = Server(router)
     server.serve()

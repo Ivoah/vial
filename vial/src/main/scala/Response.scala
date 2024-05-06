@@ -8,7 +8,7 @@ case class Response(
                      data: Array[Byte],
                      headers: Map[String, Seq[String]] = Map(),
                      status_code: Int = 200) {
-  def set_cookie(cookie: Cookie): Response = Response(
+  def with_cookie(cookie: Cookie): Response = Response(
     data = data,
     headers = headers ++ Seq("Set-Cookie" -> (headers.getOrElse("Set-Cookie", Seq()) :+ s"${cookie.name}=${cookie.value}")),
     status_code = status_code
