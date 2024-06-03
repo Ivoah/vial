@@ -1,5 +1,5 @@
 ThisBuild / organization := "net.ivoah"
-ThisBuild / version := "0.3.3"
+ThisBuild / version := "0.4.0"
 ThisBuild / scalaVersion := "3.4.1"
 
 ThisBuild / scalacOptions += "-deprecation"
@@ -10,7 +10,7 @@ val jettyVersion = "11.0.12"
 
 lazy val vial = (project in file("vial"))
   .settings(
-    name := "Vial",
+    name := "vial",
     idePackagePrefix := Some("net.ivoah.vial"),
     libraryDependencies ++= Seq(
       "org.eclipse.jetty" % "jetty-server" % jettyVersion,

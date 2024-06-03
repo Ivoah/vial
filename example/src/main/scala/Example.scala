@@ -1,4 +1,4 @@
-import net.ivoah.vial._
+import net.ivoah.vial.*
 import scalatags.Text.all.*
 
 object Example {
@@ -9,7 +9,14 @@ object Example {
         head(tag("title")("Vial")),
         body(
           p(
-            for (endpoint <- Seq("/", "/hello", "/hello/$name", "/bye", "/auth", "/params?foo=bar&baz=biff", "/cookies")) yield frag(
+            for (endpoint <- Seq(
+              "/",
+              "/hello",
+              "/hello/$name",
+              "/bye", "/auth",
+              "/params?foo=bar&baz=biff",
+              "/cookies"
+            )) yield frag(
               a(href:=endpoint, endpoint), br()
             )
           )
@@ -38,12 +45,19 @@ object Example {
           h3("Cookies"),
           ul(
             li(form(action:="/set_cookie", method:="POST",
-              input(`type`:="text", name:="name"), ": ", input(`type`:="text", name:="value"), input(`type`:="submit"))),
-            request.cookies.map(c => li(s"${c.name}: ${c.value}"))
+              input(`type`:="text", name:="name"), ": ", input(`type`:="text", name:="value"), input(`type`:="submit", value:="set cookie")
+            )),
+            request.cookies.map(c => li(
+              form(display:="inline", action:="/delete_cookie", method:="POST",
+                input(`type`:="hidden", name:="name", value:=c.name),
+                input(`type`:="submit", value:="╳")
+              ), " ", s"${c.name}: ${c.value}"
+            ))
           )
         )
       ))
-      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").with_cookie(Cookie(request.form("name"), request.form("value")))
+      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name"), request.form("value")))
+      case ("POST", "/delete_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name"), "", maxAge = Some(0)))
     }
     val server = Server(router)
     server.serve()

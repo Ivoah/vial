@@ -4,21 +4,20 @@ import java.nio.file.*
 import java.nio.file.spi.FileSystemProvider
 import scala.jdk.CollectionConverters.*
 
-case class Response(
-                     data: Array[Byte],
-                     headers: Map[String, Seq[String]] = Map(),
-                     status_code: Int = 200) {
-  def with_cookie(cookie: Cookie): Response = Response(
+import Extensions.*
+
+case class Response(data: Array[Byte], headers: Map[String, Seq[String]] = Map(), statusCode: Int = 200) {
+  def withCookie(cookie: Cookie): Response = Response(
     data = data,
-    headers = headers ++ Seq("Set-Cookie" -> (headers.getOrElse("Set-Cookie", Seq()) :+ s"${cookie.name}=${cookie.value}")),
-    status_code = status_code
+    headers = headers.merge(cookie.header),
+    statusCode = statusCode
   )
 }
 
 object Response {
   def apply(content: String): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")))
   def apply(content: String, headers: Map[String, Seq[String]]): Response = Response(content.getBytes, headers)
-  def apply(content: String, status_code: Int): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), status_code = status_code)
+  def apply(content: String, status_code: Int): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), statusCode = status_code)
   def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(content.getBytes, headers, status_code)
 
   def forFile(path: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {

@@ -31,10 +31,10 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
           Response.InternalServerError(e)
       }
 
-      logger(s"  => ${response.status_code}")
+      logger(s"  => ${response.statusCode}")
 
       response.headers.foreach { case (k, vs) => vs.foreach(v => sresponse.setHeader(k, v)) }
-      sresponse.setStatus(response.status_code)
+      sresponse.setStatus(response.statusCode)
       val os = sresponse.getOutputStream
       os.write(response.data)
       os.close()

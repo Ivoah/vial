@@ -1,5 +1,3 @@
-credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credentials")
-
 ThisBuild / developers := List(
   Developer(
     id = "Ivoah",

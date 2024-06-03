@@ -1,7 +1,7 @@
 package net.ivoah.vial
 
-import jakarta.servlet.http._
-import org.eclipse.jetty.server._
+import jakarta.servlet.http.*
+import org.eclipse.jetty.server.*
 import org.eclipse.jetty.unixdomain.server.UnixDomainServerConnector
 import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.util.thread.QueuedThreadPool
