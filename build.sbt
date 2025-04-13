@@ -1,5 +1,5 @@
 ThisBuild / organization := "net.ivoah"
-ThisBuild / version := "0.4.0"
+ThisBuild / version := "0.5.0"
 ThisBuild / scalaVersion := "3.4.1"
 
 ThisBuild / scalacOptions += "-deprecation"
