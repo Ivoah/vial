@@ -47,6 +47,7 @@ object Response {
   }
 
   def Redirect(url: String): Response = Response(s"303 see other", headers = Map("Location" -> Seq(url)), status_code = 303)
+  def BadRequest(msg: String = ""): Response = Response(s"400 bad request\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 400)
   def Unauthorized(realm: String = "private"): Response = Response("401 unauthorized", headers = Map("WWW-Authenticate" -> Seq(s"Basic realm=$realm")), status_code = 401)
   def NotFound(msg: String = ""): Response = Response(s"404 not found\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 404)
   def InternalServerError(e: Exception): Response = Response(
