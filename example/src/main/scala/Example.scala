@@ -8,7 +8,7 @@ object Example {
       case ("GET", "/", request) => Response("<!DOCTYPE html>\n" + html(
         head(tag("title")("Vial")),
         body(
-          p(
+          ul(
             for (endpoint <- Seq(
               "/",
               "/hello",
@@ -17,8 +17,14 @@ object Example {
               "/params?foo=bar&baz=biff",
               "/cookies"
             )) yield frag(
-              a(href:=endpoint, endpoint), br()
-            )
+              li(a(href:=endpoint, endpoint))
+            ),
+            li(form(action:="/form", method:="post", input(name:="input"), button("submit"))),
+            li(form(action:="/form", method:="post", enctype:="multipart/form-data",
+              input(name:="text"),
+              input(`type`:="file", name:="file"),
+              button("upload")
+            ))
           )
         )
       ))
@@ -56,8 +62,17 @@ object Example {
           )
         )
       ))
-      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name"), request.form("value")))
-      case ("POST", "/delete_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name"), "", maxAge = Some(0)))
+      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name").asInstanceOf[String], request.form("value").asInstanceOf[String]))
+      case ("POST", "/delete_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name").asInstanceOf[String], "", maxAge = Some(0)))
+      case ("POST", "/form", request) => Response("<!DOCTYPE html>\n" + html(
+        head(tag("title")("Form")),
+        body(
+          h3("Form"),
+          ul(
+            request.form.toSeq.map{case (k, v) => li(s"${k}: ${v}")}
+          )
+        )
+      ))
     }
     val server = Server(router)
     server.serve()

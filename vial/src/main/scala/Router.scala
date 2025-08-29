@@ -42,7 +42,7 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
   }
 
   /** Create new [[Router]] by combining the routes of this and another.
-    * 
+    *
     * Routes from this router take priority over `other`.
     *
     * @param other other [[Router]] to combine with.
