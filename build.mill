@@ -1,0 +1,24 @@
+//| mill-version: 1.0.4
+
+package build
+import mill.*, scalalib.*, publish.*
+
+val jettyVersion = "11.0.12"
+
+object vial extends SbtModule, SonatypeCentralPublishModule {
+  def scalaVersion = "3.3.6"
+  def publishVersion = "0.6.1"
+  def mvnDeps = Seq(
+    mvn"org.eclipse.jetty:jetty-server:$jettyVersion",
+    mvn"org.eclipse.jetty:jetty-unixdomain-server:$jettyVersion"
+  )
+
+  def pomSettings = PomSettings(
+    description = "Hello",
+    organization = "net.ivoah",
+    url = "https://github.com/ivoah/vial",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("lihaoyi", "vial"),
+    developers = Seq(Developer("ivoah", "Noah Rosamilia", "ivoah.net"))
+  )
+}
