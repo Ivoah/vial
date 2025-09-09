@@ -6,13 +6,14 @@ import java.io.File
 import java.nio.file.Files
 
 case class Request(headers: Map[String, Seq[String]], params: Map[String, String], body: Array[Byte]) {
-  lazy val form: Map[String, String | File] = headers("Content-Type").head match {
-    case "application/x-www-form-urlencoded" =>
+  lazy val form: Map[String, String | File] = headers.get("Content-Type") match {
+    case Some(Seq("application/x-www-form-urlencoded")) =>
       String(body).split("&").collect {
         case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
       }.toMap
-    case s"""multipart/form-data; boundary="$boundary"""" => Request.parseMultiPartForm(s"--$boundary", body)
-    case s"multipart/form-data; boundary=$boundary" => Request.parseMultiPartForm(s"--$boundary", body)
+    case Some(Seq(s"""multipart/form-data; boundary="$boundary"""")) => Request.parseMultiPartForm(s"--$boundary", body)
+    case Some(Seq(s"multipart/form-data; boundary=$boundary")) => Request.parseMultiPartForm(s"--$boundary", body)
+    case _ => Map()
   }
 
   lazy val auth: Option[(String, String)] = headers.get("Authorization").map {
