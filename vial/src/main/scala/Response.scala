@@ -46,6 +46,8 @@ object Response {
     case None => NotFound()
   }
 
+  def json[T: upickle.Writer](value: T, status_code: Int = 200): Response = Response(upickle.write(value), headers = Map("Content-Type" -> Seq("application/json")), status_code = status_code)
+
   def Redirect(url: String): Response = Response(s"303 see other", headers = Map("Location" -> Seq(url)), status_code = 303)
   def BadRequest(msg: String = ""): Response = Response(s"400 bad request\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 400)
   def Unauthorized(realm: String = "private"): Response = Response("401 unauthorized", headers = Map("WWW-Authenticate" -> Seq(s"Basic realm=$realm")), status_code = 401)
