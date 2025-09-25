@@ -7,7 +7,7 @@ import java.nio.file.Files
 
 case class Request(headers: Map[String, Seq[String]], params: Map[String, String], body: Array[Byte]) {
   lazy val form: Map[String, String | File] = headers.get("Content-Type") match {
-    case Some(Seq("application/x-www-form-urlencoded")) =>
+    case Some(Seq(s"application/x-www-form-urlencoded$_")) =>
       String(body).split("&").collect {
         case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
       }.toMap
