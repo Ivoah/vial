@@ -20,38 +20,42 @@ object Response {
   def apply(content: String, status_code: Int): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), statusCode = status_code)
   def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(content.getBytes, headers, status_code)
 
-  def forFile(path: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {
-    val uri = path.toUri
-    if (uri.getScheme == "jar") {
-      for (provider <- FileSystemProvider.installedProviders.asScala) {
-        if (provider.getScheme.equalsIgnoreCase("jar")) try provider.getFileSystem(uri)
-        catch {
-          case e: FileSystemNotFoundException =>
-            // in this case we need to initialize it first:
-            provider.newFileSystem(uri, java.util.Collections.emptyMap)
+  def forFile(root: Path, file: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {
+    // Restrict files to be underneath root
+    if (root.resolve(file).toRealPath(LinkOption.NOFOLLOW_LINKS).startsWith(root.toRealPath(LinkOption.NOFOLLOW_LINKS))) {
+      val path = root.resolve(file)
+      val uri = path.toUri
+      if (uri.getScheme == "jar") {
+        for (provider <- FileSystemProvider.installedProviders.asScala) {
+          if (provider.getScheme.equalsIgnoreCase("jar")) try provider.getFileSystem(uri)
+          catch {
+            case e: FileSystemNotFoundException =>
+              // in this case we need to initialize it first:
+              provider.newFileSystem(uri, java.util.Collections.emptyMap)
+          }
         }
       }
-    }
 
-    if (Files.exists(path)) {
-      val content = Files.readAllBytes(path)
-      Response(content, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
-    } else {
-      NotFound()
-    }
+      if (Files.exists(path)) {
+        val content = Files.readAllBytes(path)
+        Response(content, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
+      } else NotFound()
+    } else NotFound()
   }
 
-  def fromResource(name: String): Response = Option(getClass.getResource(name)) match {
-    case Some(url) => forFile(Paths.get(url.toURI))
-    case None => NotFound()
-  }
+//  def fromResource(name: String): Response = Option(getClass.getResource(name)) match {
+//    case Some(url) => forFile(Paths.get(url.toURI))
+//    case None => NotFound()
+//  }
 
   def json[T: upickle.Writer](value: T, status_code: Int = 200): Response = Response(upickle.write(value), headers = Map("Content-Type" -> Seq("application/json")), status_code = status_code)
 
-  def Redirect(url: String): Response = Response(s"303 see other", headers = Map("Location" -> Seq(url)), status_code = 303)
-  def BadRequest(msg: String = ""): Response = Response(s"400 bad request\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 400)
-  def Unauthorized(realm: String = "private"): Response = Response("401 unauthorized", headers = Map("WWW-Authenticate" -> Seq(s"Basic realm=$realm")), status_code = 401)
-  def NotFound(msg: String = ""): Response = Response(s"404 not found\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 404)
+  def Redirect(url: String): Response = Response(s"303 See Other", headers = Map("Location" -> Seq(url)), status_code = 303)
+  def BadRequest(msg: String = ""): Response = Response(s"400 Bad Request\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 400)
+  def Unauthorized(realm: String = "private"): Response = Response("401 Unauthorized", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8"), "WWW-Authenticate" -> Seq(s"Basic realm=$realm")), status_code = 401)
+  def Forbidden(msg: String = ""): Response = Response(s"403 Forbidden\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 403)
+  def NotFound(msg: String = ""): Response = Response(s"404 Not Found\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 404)
+  def ImATeapot(msg: String = ""): Response = Response(s"418 I'm a teapot\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 418)
   def InternalServerError(e: Exception): Response = Response(
     s"""500 internal server error
        |

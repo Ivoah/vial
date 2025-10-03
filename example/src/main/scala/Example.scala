@@ -1,5 +1,6 @@
 import net.ivoah.vial.*
 import scalatags.Text.all.*
+import java.nio.file.Paths
 
 object Example {
   @main
@@ -8,6 +9,7 @@ object Example {
       case ("GET", "/", request) => Response("<!DOCTYPE html>\n" + html(
         head(tag("title")("Vial")),
         body(
+          img(src:="/static/vial.png", width:=64),
           ul(
             for (endpoint <- Seq(
               "/",
@@ -31,7 +33,7 @@ object Example {
       case ("GET", "/hello", _) => Response("Hello!")
       case ("GET", s"/hello/$name", _) => Response(s"Hello $name!")
       case ("GET", "/bye", _) => Response("Goodbye :)")
-      case ("GET", s"/favicon.ico", _) => Response.fromResource(s"/favicon.ico")
+//      case ("GET", s"/favicon.ico", _) => Response.fromResource(s"/favicon.ico")
       case ("GET", "/auth", request) => request.auth match {
         case Some((username, password)) if username == "foo" && password == "bar" => Response("Authenticated!")
         case _ => Response.Unauthorized()
@@ -73,6 +75,7 @@ object Example {
           )
         )
       ))
+      case ("GET", s"/static/$file", _) => Response.forFile(Paths.get("static"), Paths.get(file))
     }
     val server = Server(router)
     server.serve()
