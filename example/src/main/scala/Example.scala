@@ -76,6 +76,16 @@ object Example {
         )
       ))
       case ("GET", s"/static/$file", _) => Response.forFile(Paths.get("static"), Paths.get(file))
+
+      case ("GET", "/stream", _) => Response(new Iterator[Array[Byte]] {
+        private var i = 0
+        override def hasNext: Boolean = i < 100
+        override def next(): Array[Byte] = {
+          Thread.sleep(100)
+          i += 1
+          s"$i\n".getBytes
+        }
+      })
     }
     val server = Server(router)
     server.serve()

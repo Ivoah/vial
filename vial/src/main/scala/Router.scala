@@ -6,8 +6,6 @@ import jakarta.servlet.http.*
 import org.eclipse.jetty.server.{Request as JettyRequest, Response as JettyResponse}
 import org.eclipse.jetty.server.handler.AbstractHandler
 
-import scala.annotation.targetName
-
 case class Router(routes: PartialFunction[(String, String, Request), Response]) {
   def handler(implicit logger: String => Unit): AbstractHandler = new AbstractHandler() {
     def handle(target: String, jettyRequest: JettyRequest, srequest: HttpServletRequest, sresponse: HttpServletResponse): Unit = {
@@ -35,9 +33,12 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
 
       response.headers.foreach { case (k, vs) => vs.foreach(v => sresponse.setHeader(k, v)) }
       sresponse.setStatus(response.statusCode)
-      val os = sresponse.getOutputStream
-      os.write(response.data)
-      os.close()
+      val outputStream = sresponse.getOutputStream
+      for (chunk <- response.data) {
+        outputStream.write(chunk)
+        outputStream.flush()
+      }
+      outputStream.close()
     }
   }
 

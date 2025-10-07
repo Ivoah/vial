@@ -6,7 +6,9 @@ import scala.jdk.CollectionConverters.*
 
 import Extensions.*
 
-case class Response(data: Array[Byte], headers: Map[String, Seq[String]] = Map(), statusCode: Int = 200) {
+val BUFFER_SIZE = 1024*8
+
+case class Response(data: IterableOnce[Array[Byte]], headers: Map[String, Seq[String]] = Map(), statusCode: Int = 200) {
   def withCookie(cookie: Cookie): Response = Response(
     data = data,
     headers = headers.merge(cookie.header),
@@ -15,10 +17,10 @@ case class Response(data: Array[Byte], headers: Map[String, Seq[String]] = Map()
 }
 
 object Response {
-  def apply(content: String): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")))
-  def apply(content: String, headers: Map[String, Seq[String]]): Response = Response(content.getBytes, headers)
-  def apply(content: String, status_code: Int): Response = Response(content.getBytes, headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), statusCode = status_code)
-  def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(content.getBytes, headers, status_code)
+  def apply(content: String): Response = Response(Seq(content.getBytes), headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")))
+  def apply(content: String, headers: Map[String, Seq[String]]): Response = Response(Seq(content.getBytes), headers)
+  def apply(content: String, status_code: Int): Response = Response(Seq(content.getBytes), headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), statusCode = status_code)
+  def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(Seq(content.getBytes), headers, status_code)
 
   def forFile(root: Path, file: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {
     // Restrict files to be underneath root
@@ -37,8 +39,15 @@ object Response {
       }
 
       if (Files.exists(path)) {
-        val content = Files.readAllBytes(path)
-        Response(content, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
+        Response(new Iterator[Array[Byte]] {
+          private val stream = Files.newInputStream(path)
+          private val buffer = Array.ofDim[Byte](BUFFER_SIZE)
+          override def hasNext: Boolean = stream.available() > 0
+          override def next(): Array[Byte] = {
+            val n = stream.read(buffer)
+            buffer.take(n)
+          }
+        }, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
       } else NotFound()
     } else NotFound()
   }
