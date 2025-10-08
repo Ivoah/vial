@@ -24,7 +24,7 @@ object Response {
 
   def forFile(root: Path, file: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {
     // Restrict files to be underneath root
-    if (root.resolve(file).toRealPath(LinkOption.NOFOLLOW_LINKS).startsWith(root.toRealPath(LinkOption.NOFOLLOW_LINKS))) {
+    if (Files.exists(root.resolve(file)) && root.resolve(file).toRealPath(LinkOption.NOFOLLOW_LINKS).startsWith(root.toRealPath(LinkOption.NOFOLLOW_LINKS))) {
       val path = root.resolve(file)
       val uri = path.toUri
       if (uri.getScheme == "jar") {
@@ -38,17 +38,15 @@ object Response {
         }
       }
 
-      if (Files.exists(path)) {
-        Response(new Iterator[Array[Byte]] {
-          private val stream = Files.newInputStream(path)
-          private val buffer = Array.ofDim[Byte](BUFFER_SIZE)
-          override def hasNext: Boolean = stream.available() > 0
-          override def next(): Array[Byte] = {
-            val n = stream.read(buffer)
-            buffer.take(n)
-          }
-        }, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
-      } else NotFound()
+      Response(new Iterator[Array[Byte]] {
+        private val stream = Files.newInputStream(path)
+        private val buffer = Array.ofDim[Byte](BUFFER_SIZE)
+        override def hasNext: Boolean = stream.available() > 0
+        override def next(): Array[Byte] = {
+          val n = stream.read(buffer)
+          buffer.take(n)
+        }
+      }, headers = Map("Content-Type" -> Seq(mime.getOrElse(Files.probeContentType(path)))) ++ headers)
     } else NotFound()
   }
 
