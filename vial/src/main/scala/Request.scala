@@ -5,6 +5,23 @@ import java.net.URLDecoder
 import java.io.File
 import java.nio.file.Files
 
+extension [K, V](map: Map[K, V]) {
+  def expect[T1](p1: K)(fn: T1 => Response): Response = {
+    try fn(map(p1).asInstanceOf[T1])
+    catch case e: (NoSuchElementException | ClassCastException) => Response.BadRequest()
+  }
+
+  def expect[T1, T2](p1: K, p2: K)(fn: (T1, T2) => Response): Response = {
+    try fn(map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2])
+    catch case e: (NoSuchElementException | ClassCastException) => Response.BadRequest()
+  }
+
+  def expect[T1, T2, T3](p1: K, p2: K, p3: K)(fn: (T1, T2, T3) => Response): Response = {
+    try fn(map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3])
+    catch case e: (NoSuchElementException | ClassCastException) => Response.BadRequest()
+  }
+}
+
 case class Request(headers: Map[String, Seq[String]], params: Map[String, String], body: Array[Byte]) {
   lazy val form: Map[String, String | File] = headers.get("Content-Type") match {
     case Some(Seq(s"application/x-www-form-urlencoded$_")) =>
