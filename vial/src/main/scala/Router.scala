@@ -14,12 +14,14 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
         logger(s"${srequest.getMethod} ${srequest.getRequestURL}${Option(srequest.getQueryString).map(qs => s"?$qs").getOrElse("")}")
 
         val request = Request(
+          method = srequest.getMethod,
+          path = uri,
           headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
           params = Option(srequest.getQueryString).getOrElse("").split('&').collect {
             case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
             case bare => bare -> ""
           }.toMap,
-          srequest.getInputStream.readAllBytes()
+          body = srequest.getInputStream.readAllBytes()
         )
 
         routes.lift((srequest.getMethod, uri, request)).getOrElse(Response.NotFound())
@@ -32,6 +34,7 @@ case class Router(routes: PartialFunction[(String, String, Request), Response]) 
       logger(s"  => ${response.statusCode}")
 
       response.headers.foreach { case (k, vs) => vs.foreach(v => sresponse.setHeader(k, v)) }
+      response.cookies.foreach(c => sresponse.addCookie(c.toServletCookie))
       sresponse.setStatus(response.statusCode)
       val outputStream = sresponse.getOutputStream
       for (chunk <- response.data) {

@@ -8,10 +8,11 @@ import Extensions.*
 
 val BUFFER_SIZE = 1024*8
 
-case class Response(data: IterableOnce[Array[Byte]], headers: Map[String, Seq[String]] = Map(), statusCode: Int = 200) {
+case class Response(data: IterableOnce[Array[Byte]], headers: Map[String, Seq[String]] = Map(), cookies: Seq[Cookie] = Seq(), statusCode: Int = 200) {
   def withCookie(cookie: Cookie): Response = Response(
     data = data,
-    headers = headers.merge(cookie.header),
+    headers = headers,
+    cookies = cookies :+ cookie,
     statusCode = statusCode
   )
 }
@@ -20,7 +21,7 @@ object Response {
   def apply(content: String): Response = Response(Seq(content.getBytes), headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")))
   def apply(content: String, headers: Map[String, Seq[String]]): Response = Response(Seq(content.getBytes), headers)
   def apply(content: String, status_code: Int): Response = Response(Seq(content.getBytes), headers = Map("Content-Type" -> Seq("text/html; charset=UTF-8")), statusCode = status_code)
-  def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(Seq(content.getBytes), headers, status_code)
+  def apply(content: String, headers: Map[String, Seq[String]], status_code: Int): Response = Response(Seq(content.getBytes), headers, Seq(), status_code)
 
   def forFile(root: Path, file: Path, mime: Option[String] = None, headers: Map[String, Seq[String]] = Map()): Response = {
     // Restrict files to be underneath root

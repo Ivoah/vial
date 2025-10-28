@@ -1,6 +1,7 @@
 package net.ivoah.vial
 
 import java.time.Instant
+import jakarta.servlet.http.{Cookie => JCookie}
 
 enum SameSite(val value: String) {
   case Strict extends SameSite("Strict")
@@ -19,7 +20,7 @@ case class Cookie(
                    path: Option[String] = None,
                    sameSite: Option[SameSite] = None
                  ) {
-  private[vial] def header: Map[String, Seq[String]] = {
+  def header: Map[String, Seq[String]] = {
     Map("Set-Cookie" -> Seq(
       s"$name=$value"
         + domain.map(d => s"; Domain=$d").getOrElse("")
@@ -31,5 +32,14 @@ case class Cookie(
         + path.map(p => s"; Path=$p").getOrElse("")
         + sameSite.map(ss => s"; SameSite=${ss.value}").getOrElse("")
     ))
+  }
+
+  def toServletCookie: JCookie = {
+    val c = JCookie(name, value)
+    domain.foreach(c.setDomain)
+    httpOnly.foreach(c.setHttpOnly)
+    maxAge.foreach(c.setMaxAge)
+    path.foreach(c.setPath)
+    c
   }
 }
