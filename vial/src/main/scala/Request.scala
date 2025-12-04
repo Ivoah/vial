@@ -20,13 +20,23 @@ extension [K, V](map: Map[K, V]) {
     try fn(map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3])
     catch case e: (NoSuchElementException | ClassCastException) => Response.BadRequest()
   }
+
+  def expect[T1, T2, T3, T4](p1: K, p2: K, p3: K, p4: K)(fn: (T1, T2, T3, T4) => Response): Response = {
+    try fn(map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3], map(p4).asInstanceOf[T4])
+    catch case e: (NoSuchElementException | ClassCastException) => Response.BadRequest()
+  }
+
+  def expect[T1, T2, T3, T4, T5](p1: K, p2: K, p3: K, p4: K, p5: K)(fn: (T1, T2, T3, T4, T5) => Response): Response = {
+    try fn(map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3], map(p4).asInstanceOf[T4], map(p5).asInstanceOf[T5])
+    catch case e: (NoSuchElementException | ClassCastException) => Response.BadRequest()
+  }
 }
 
 case class Request(method: String, path: String, headers: Map[String, Seq[String]], params: Map[String, String], body: Array[Byte]) {
   lazy val form: Map[String, String | File] = headers.get("Content-Type") match {
     case Some(Seq(s"application/x-www-form-urlencoded$_")) =>
       String(body).split("&").collect {
-        case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
+        case s"$key=$value" => URLDecoder.decode(key, "UTF-8") -> URLDecoder.decode(value, "UTF-8")
       }.toMap
     case Some(Seq(s"""multipart/form-data; boundary="$boundary"""")) => Request.parseMultiPartForm(s"--$boundary", body)
     case Some(Seq(s"multipart/form-data; boundary=$boundary")) => Request.parseMultiPartForm(s"--$boundary", body)
