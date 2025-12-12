@@ -90,7 +90,7 @@ object Example {
         }
       })
     }
-    val server = Server(router)
+    val server = Server(router, ("localhost", 8081))
     server.serve()
   }
 }

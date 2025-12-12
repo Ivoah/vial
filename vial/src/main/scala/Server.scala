@@ -14,12 +14,10 @@ import java.io.File
   * Takes either a host/port combo, or the path to a unix domain socket.
   * 
   * @param router the router to use
-  * @param host host address to bind to, defaults to "127.0.0.1", ignored if `socket` is present.
-  * @param port port to bind to, defaults to 8000, ignored if `socket` is present.
-  * @param socket path to unix domain socket, optional.
+  * @param listen host and port pair to bind to, or path for unix socket.
   * @param logger
   */
-case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, socket: Option[String] = None)(implicit val logger: String => Unit = println) {
+case class Server(router: Router, listen: (String, Int) | String)(implicit val logger: String => Unit = println) {
 
   // Create and configure a ThreadPool.
   private val threadPool = new QueuedThreadPool
@@ -29,8 +27,8 @@ case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, 
   private val server = new org.eclipse.jetty.server.Server(threadPool)
 
   // Create a Connector to accept connections from clients.
-  private val connector = socket match {
-    case Some(path) =>
+  private val connector = listen match {
+    case path: String =>
       val socket = new File(path)
       if (socket.exists()) {
         Console.err.println(s"Socket $path exists, exiting")
@@ -40,7 +38,7 @@ case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, 
       val connector = new UnixDomainServerConnector(server)
       connector.setUnixDomainPath(socket.toPath)
       connector
-    case None =>
+    case (host, port) =>
       val connector = new ServerConnector(server)
       connector.setHost(host)
       connector.setPort(port)
@@ -58,9 +56,9 @@ case class Server(router: Router, host: String = "127.0.0.1", port: Int = 8000, 
     */
   def serve(): Unit = {
     server.start()
-    socket match {
-      case Some(path) => logger(s"Listening on unix socket ${path}")
-      case None => logger(s"Listening on http://$host:$port")
+    listen match {
+      case path: String => logger(s"Listening on unix socket $path")
+      case (host, port) => logger(s"Listening on http://$host:$port")
     }
   }
 }

@@ -7,7 +7,7 @@ val jettyVersion = "11.0.12"
 
 object vial extends SbtModule, SonatypeCentralPublishModule {
   def scalaVersion = "3.3.6"
-  def publishVersion = "0.8.4"
+  def publishVersion = "0.9.0"
   def mvnDeps = Seq(
     mvn"org.eclipse.jetty:jetty-server:$jettyVersion",
     mvn"org.eclipse.jetty:jetty-unixdomain-server:$jettyVersion",
@@ -15,11 +15,11 @@ object vial extends SbtModule, SonatypeCentralPublishModule {
   )
 
   def pomSettings = PomSettings(
-    description = "Hello",
+    description = "Tiny web framework for Scala inspired by bottle and flask.",
     organization = "net.ivoah",
     url = "https://github.com/ivoah/vial",
     licenses = Seq(License.MIT),
-    versionControl = VersionControl.github("lihaoyi", "vial"),
+    versionControl = VersionControl.github("ivoah", "vial"),
     developers = Seq(Developer("ivoah", "Noah Rosamilia", "ivoah.net"))
   )
 }
