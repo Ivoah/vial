@@ -17,7 +17,7 @@ import java.io.File
   * @param listen host and port pair to bind to, or path for unix socket.
   * @param logger
   */
-case class Server(router: Router, listen: (String, Int) | String)(implicit val logger: String => Unit = println) {
+case class Server(router: Router, listen: (String, Int) | String, debug: Boolean = false)(implicit val logger: String => Unit = println) {
 
   // Create and configure a ThreadPool.
   private val threadPool = new QueuedThreadPool
@@ -49,7 +49,7 @@ case class Server(router: Router, listen: (String, Int) | String)(implicit val l
   server.addConnector(connector)
 
   // Set a simple Handler to handle requests/responses.
-  server.setHandler(router.handler)
+  server.setHandler(router.handler(debug))
 
   /** Start the server.
     * This will block while the server is running.

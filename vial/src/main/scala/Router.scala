@@ -5,31 +5,32 @@ import java.net.URLDecoder
 import jakarta.servlet.http.*
 import org.eclipse.jetty.server.{Request as JettyRequest, Response as JettyResponse}
 import org.eclipse.jetty.server.handler.AbstractHandler
+import scala.util.Try
 
-case class Router(routes: PartialFunction[(String, String, Request), Response]) {
-  def handler(implicit logger: String => Unit): AbstractHandler = new AbstractHandler() {
+case class Router(routes: PartialFunction[(String, String, Request) | (String, String, Request, Throwable), Response]) {
+  def handler(debug: Boolean)(implicit logger: String => Unit): AbstractHandler = new AbstractHandler() {
     def handle(target: String, jettyRequest: JettyRequest, srequest: HttpServletRequest, sresponse: HttpServletResponse): Unit = {
-      val response = try {
-        val uri = URLDecoder.decode(srequest.getRequestURI, "UTF-8")
-        logger(s"${srequest.getMethod} ${srequest.getRequestURL}${Option(srequest.getQueryString).map(qs => s"?$qs").getOrElse("")}")
+      val uri = URLDecoder.decode(srequest.getRequestURI, "UTF-8")
+      logger(s"${srequest.getMethod} ${srequest.getRequestURL}${Option(srequest.getQueryString).map(qs => s"?$qs").getOrElse("")}")
 
-        val request = Request(
-          method = srequest.getMethod,
-          path = uri,
-          headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
-          params = Option(srequest.getQueryString).getOrElse("").split('&').collect {
-            case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
-            case bare => bare -> ""
-          }.toMap,
-          body = srequest.getInputStream.readAllBytes()
-        )
+      val request = Request(
+        method = srequest.getMethod,
+        path = uri,
+        headers = srequest.getHeaderNames.asScala.map(header => header -> srequest.getHeaders(header).asScala.toSeq).toMap,
+        params = Option(srequest.getQueryString).getOrElse("").split('&').collect {
+          case s"$key=$value" => key -> URLDecoder.decode(value, "UTF-8")
+          case bare => bare -> ""
+        }.toMap,
+        body = srequest.getInputStream.readAllBytes()
+      )
 
-        routes.lift((srequest.getMethod, uri, request)).getOrElse(Response.NotFound())
-      } catch {
-        case e: Exception =>
+      val response = Try(routes.lift((srequest.getMethod, uri, request)).getOrElse(Response.NotFound()))
+        .recover(routes.compose(e => (srequest.getMethod, uri, request, e)))
+        .recover { e =>
           e.printStackTrace()
-          Response.InternalServerError(e)
-      }
+          Response.InternalServerError(if (debug) e else "")
+        }
+        .get
 
       logger(s"  => ${response.statusCode}")
 

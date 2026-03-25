@@ -17,7 +17,8 @@ object Example {
               "/hello/$name",
               "/bye", "/auth",
               "/params?foo=bar&baz=biff",
-              "/cookies"
+              "/cookies",
+              "/exception"
             )) yield frag(
               li(a(href:=endpoint, endpoint))
             ),
@@ -64,6 +65,9 @@ object Example {
           )
         )
       ))
+      case ("GET", "/exception", request) =>
+        1/0
+        Response("nope")
       case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name").asInstanceOf[String], request.form("value").asInstanceOf[String]))
       case ("POST", "/delete_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name").asInstanceOf[String], "", maxAge = Some(0)))
       case ("POST", "/form", request) => Response("<!DOCTYPE html>\n" + html(
@@ -89,8 +93,11 @@ object Example {
           s"$i\n".getBytes
         }
       })
+
+      case (_, uri, _, e) =>
+        Response(s"This is a custom exception handler, got $e for $uri")
     }
-    val server = Server(router, ("localhost", 8081))
+    val server = Server(router, ("localhost", 8081), debug = true)
     server.serve()
   }
 }

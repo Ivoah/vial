@@ -64,10 +64,10 @@ object Response {
   def Forbidden(msg: String = ""): Response = Response(s"403 Forbidden\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 403)
   def NotFound(msg: String = ""): Response = Response(s"404 Not Found\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 404)
   def ImATeapot(msg: String = ""): Response = Response(s"418 I'm a teapot\n$msg", headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")), status_code = 418)
-  def InternalServerError(msg: String | Exception = ""): Response = Response(
+  def InternalServerError(msg: String | Throwable = ""): Response = Response(
     s"500 internal server error\n${msg match {
       case s: String => s
-      case e: Exception => s"\n$e\n${e.getStackTrace.map("... " + _).mkString("\n")}"
+      case e: Throwable => s"\n$e\n${e.getStackTrace.map("... " + _).mkString("\n")}"
     }}",
     headers = Map("Content-Type" -> Seq("text/plain; charset=UTF-8")),
     status_code = 500
