@@ -81,7 +81,7 @@ object Example {
       ))
       case ("POST", "/formExpect", request) => request.form.expect("foo", "bar") { (foo: String, bar: String) => Response("<!DOCTYPE html>\n" + html(
         p(s"Got foo=$foo and bar=$bar as expected")
-      ))}
+      ))}.getOrElse(Response.BadRequest())
       case ("GET", s"/static/$file", _) => Response.forFile(Paths.get("static"), Paths.get(file))
 
       case ("GET", "/stream", _) => Response(new Iterator[Array[Byte]] {
