@@ -7,24 +7,24 @@ import java.nio.file.Files
 import scala.util.Try
 
 extension [K, V](map: Map[K, V]) {
-  def expect[T1, R](p1: K)(fn: T1 => R): Try[R] = {
-    Try(map(p1).asInstanceOf[T1]).map(fn)
+  def expect[T1, R](p1: K)(fn: T1 => R): Option[R] = {
+    Try(map(p1).asInstanceOf[T1]).toOption.map(fn)
   }
 
-  def expect[T1, T2, R](p1: K, p2: K)(fn: (T1, T2) => R): Try[R] = {
-    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2])).map(fn.tupled)
+  def expect[T1, T2, R](p1: K, p2: K)(fn: (T1, T2) => R): Option[R] = {
+    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2])).toOption.map(fn.tupled)
   }
 
-  def expect[T1, T2, T3, R](p1: K, p2: K, p3: K)(fn: (T1, T2, T3) => R): Try[R] = {
-    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3])).map(fn.tupled)
+  def expect[T1, T2, T3, R](p1: K, p2: K, p3: K)(fn: (T1, T2, T3) => R): Option[R] = {
+    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3])).toOption.map(fn.tupled)
   }
 
-  def expect[T1, T2, T3, T4, R](p1: K, p2: K, p3: K, p4: K)(fn: (T1, T2, T3, T4) => R): Try[R] = {
-    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3], map(p4).asInstanceOf[T4])).map(fn.tupled)
+  def expect[T1, T2, T3, T4, R](p1: K, p2: K, p3: K, p4: K)(fn: (T1, T2, T3, T4) => R): Option[R] = {
+    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3], map(p4).asInstanceOf[T4])).toOption.map(fn.tupled)
   }
 
-  def expect[T1, T2, T3, T4, T5, R](p1: K, p2: K, p3: K, p4: K, p5: K)(fn: (T1, T2, T3, T4, T5) => R): Try[R] = {
-    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3], map(p4).asInstanceOf[T4], map(p5).asInstanceOf[T5])).map(fn.tupled)
+  def expect[T1, T2, T3, T4, T5, R](p1: K, p2: K, p3: K, p4: K, p5: K)(fn: (T1, T2, T3, T4, T5) => R): Option[R] = {
+    Try((map(p1).asInstanceOf[T1], map(p2).asInstanceOf[T2], map(p3).asInstanceOf[T3], map(p4).asInstanceOf[T4], map(p5).asInstanceOf[T5])).toOption.map(fn.tupled)
   }
 }
 
