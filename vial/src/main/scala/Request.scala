@@ -45,7 +45,7 @@ case class Request(method: String, path: String, headers: Map[String, Seq[String
     }
   }
 
-  lazy val cookies: Seq[Cookie] = headers.getOrElse("Cookie", Seq()).flatMap(_.split("; ")).map {
+  lazy val cookies: Seq[Cookie] = headers.getOrElse("Cookie", Seq()).flatMap(_.split("; ")).filter(_.nonEmpty).map {
     case s"$name=$value" => Cookie(name, value)
   }
 }
