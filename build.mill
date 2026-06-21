@@ -1,11 +1,11 @@
-//| mill-version: 1.0.4
+//| mill-version: 1.1.6
 
 package build
 import mill.*, scalalib.*, publish.*
 
 val jettyVersion = "11.0.12"
 
-object vial extends SbtModule, SonatypeCentralPublishModule {
+object vial extends ScalaModule, SonatypeCentralPublishModule {
   def scalaVersion = "3.3.6"
   def publishVersion = "0.12.2"
   def mvnDeps = Seq(
@@ -24,7 +24,7 @@ object vial extends SbtModule, SonatypeCentralPublishModule {
   )
 }
 
-object example extends SbtModule {
+object example extends ScalaModule {
   def scalaVersion = "3.3.6"
   def moduleDeps = Seq(vial)
   def mvnDeps = Seq(
