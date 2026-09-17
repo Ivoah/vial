@@ -63,4 +63,29 @@ class Form(request: Request) {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5))
     yield fn(p1, p2, p3, p4, p5)
   }
+
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, T5: FormExtractor, T6: FormExtractor, R](k1: String, k2: String, k3: String, k4: String, k5: String, k6: String)(fn: (T1, T2, T3, T4, T5, T6) => R): Option[R] = {
+    for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5); p6 <- get[T6](k6))
+    yield fn(p1, p2, p3, p4, p5, p6)
+  }
+
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, T5: FormExtractor, T6: FormExtractor, T7: FormExtractor, R](k1: String, k2: String, k3: String, k4: String, k5: String, k6: String, k7: String)(fn: (T1, T2, T3, T4, T5, T6, T7) => R): Option[R] = {
+    for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5); p6 <- get[T6](k6); p7 <- get[T7](k7))
+    yield fn(p1, p2, p3, p4, p5, p6, p7)
+  }
+
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, T5: FormExtractor, T6: FormExtractor, T7: FormExtractor, T8: FormExtractor, R](k1: String, k2: String, k3: String, k4: String, k5: String, k6: String, k7: String, k8: String)(fn: (T1, T2, T3, T4, T5, T6, T7, T8) => R): Option[R] = {
+    for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5); p6 <- get[T6](k6); p7 <- get[T7](k7); p8 <- get[T8](k8))
+    yield fn(p1, p2, p3, p4, p5, p6, p7, p8)
+  }
+
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, T5: FormExtractor, T6: FormExtractor, T7: FormExtractor, T8: FormExtractor, T9: FormExtractor, R](k1: String, k2: String, k3: String, k4: String, k5: String, k6: String, k7: String, k8: String, k9: String)(fn: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R): Option[R] = {
+    for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5); p6 <- get[T6](k6); p7 <- get[T7](k7); p8 <- get[T8](k8); p9 <- get[T9](k9))
+    yield fn(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+  }
+
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, T5: FormExtractor, T6: FormExtractor, T7: FormExtractor, T8: FormExtractor, T9: FormExtractor, T10: FormExtractor, R](k1: String, k2: String, k3: String, k4: String, k5: String, k6: String, k7: String, k8: String, k9: String, k10: String)(fn: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R): Option[R] = {
+    for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5); p6 <- get[T6](k6); p7 <- get[T7](k7); p8 <- get[T8](k8); p9 <- get[T9](k9); p10 <- get[T10](k10))
+    yield fn(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+  }
 }
