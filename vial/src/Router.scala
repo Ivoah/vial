@@ -3,7 +3,7 @@ package net.ivoah.vial
 import scala.jdk.CollectionConverters.*
 import java.net.URLDecoder
 import jakarta.servlet.http.*
-import org.eclipse.jetty.server.{Request as JettyRequest, Response as JettyResponse}
+import org.eclipse.jetty.server.{Request as JettyRequest}
 import org.eclipse.jetty.server.handler.AbstractHandler
 import scala.util.Try
 
@@ -38,7 +38,7 @@ case class Router(routes: PartialFunction[(String, String, Request) | (String, S
       response.cookies.foreach(c => sresponse.addCookie(c.toServletCookie))
       sresponse.setStatus(response.statusCode)
       val outputStream = sresponse.getOutputStream
-      for (chunk <- response.data) {
+      for (chunk <- response.data.iterator) {
         outputStream.write(chunk)
         outputStream.flush()
       }

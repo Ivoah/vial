@@ -68,14 +68,14 @@ object Example {
       case ("GET", "/exception", request) =>
         1/0
         Response("nope")
-      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name").asInstanceOf[String], request.form("value").asInstanceOf[String]))
-      case ("POST", "/delete_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form("name").asInstanceOf[String], "", maxAge = Some(0)))
+      case ("POST", "/set_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form.get("name").get, request.form.get("value").get))
+      case ("POST", "/delete_cookie", request) => Response.Redirect("/cookies").withCookie(Cookie(request.form.get("name").get, "", maxAge = Some(0)))
       case ("POST", "/form", request) => Response("<!DOCTYPE html>\n" + html(
         head(tag("title")("Form")),
         body(
           h3("Form"),
           ul(
-            request.form.toSeq.map{case (k, v) => li(s"${k}: ${v}")}
+            request.form.data.map{case (k, v) => li(s"${k}: ${v}")}
           )
         )
       ))
@@ -94,8 +94,7 @@ object Example {
         }
       })
 
-      case (_, uri, _, e) =>
-        Response(s"This is a custom exception handler, got $e for $uri")
+      case (_, uri, _, e) => Response(s"This is a custom exception handler, got $e for $uri")
     }
     val server = Server(router, ("localhost", 8081), debug = true)
     server.serve()

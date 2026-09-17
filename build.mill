@@ -7,7 +7,8 @@ val jettyVersion = "11.0.12"
 
 object vial extends ScalaModule, SonatypeCentralPublishModule {
   def scalaVersion = "3.3.6"
-  def publishVersion = "0.12.2"
+  def publishVersion = "0.13.0"
+  def scalacOptions = Seq("-deprecation", "-feature", "-Werror", "-language:implicitConversions", "-Wunused:imports")
   def mvnDeps = Seq(
     mvn"org.eclipse.jetty:jetty-server:$jettyVersion",
     mvn"org.eclipse.jetty:jetty-unixdomain-server:$jettyVersion",

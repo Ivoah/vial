@@ -1,12 +1,9 @@
 package net.ivoah.vial
 
-import jakarta.servlet.http.*
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.unixdomain.server.UnixDomainServerConnector
-import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
-import java.net.InetSocketAddress
 import java.io.File
 
 /** Main entry point of a vial application.

@@ -4,8 +4,6 @@ import java.nio.file.*
 import java.nio.file.spi.FileSystemProvider
 import scala.jdk.CollectionConverters.*
 
-import Extensions.*
-
 val BUFFER_SIZE = 1024*8
 
 case class Response(data: IterableOnce[Array[Byte]], headers: Map[String, Seq[String]] = Map(), cookies: Seq[Cookie] = Seq(), statusCode: Int = 200) {
