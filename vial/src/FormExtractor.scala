@@ -18,5 +18,6 @@ object FormExtractor {
     }
   }
 
-  given [T: ValueConverter] => FormExtractor[T]  = (f, k) => f.toMap.get(k).flatMap(ValueConverter.parse)
+  given [T: FormExtractor as fe] => FormExtractor[Option[T]] = (k, v) => Some(fe.get(k, v))
+  given [T: ValueConverter] => FormExtractor[T] = (f, k) => f.toMap.get(k).flatMap(ValueConverter.parse)
 }
