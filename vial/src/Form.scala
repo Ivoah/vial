@@ -46,12 +46,12 @@ class Form(request: Request) {
 
   def expect[T1: FormExtractor, T2: FormExtractor, R](k1: String, k2: String)(fn: (T1, T2) => R): Option[R] = {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2))
-     yield fn(p1, p2)
+    yield fn(p1, p2)
   }
 
   def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, R](k1: String, k2: String, k3: String)(fn: (T1, T2, T3) => R): Option[R] = {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3))
-     yield fn(p1, p2, p3)
+    yield fn(p1, p2, p3)
   }
 
   def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, R](k1: String, k2: String, k3: String, k4: String)(fn: (T1, T2, T3, T4) => R): Option[R] = {
