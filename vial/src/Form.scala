@@ -36,34 +36,30 @@ class Form(request: Request) {
     case _ => Seq()
   }
 
-  def get[T: FormValueParser](key: String): Option[T] = data.find(_._1 == key).map(_._2).flatMap(FormValueParser.parse)
-  def getOrElse[T: FormValueParser](key: String, default: => T): T = get(key).getOrElse(default)
+  def get[T: FormExtractor](key: String): Option[T] = FormExtractor.get(data, key)
+  def getOrElse[T: FormExtractor](key: String, default: => T): T = get(key).getOrElse(default)
 
-  def getAll[T: FormValueParser](key: String): Seq[T] = data.collect {
-    case (k, v) if k == key => FormValueParser.parse(v)
-  }.flatten
-
-  def expect[T1: FormValueParser, R](k1: String)(fn: T1 => R): Option[R] = {
+  def expect[T1: FormExtractor, R](k1: String)(fn: T1 => R): Option[R] = {
     for (p1 <- get[T1](k1))
     yield fn(p1)
   }
 
-  def expect[T1: FormValueParser, T2: FormValueParser, R](k1: String, k2: String)(fn: (T1, T2) => R): Option[R] = {
+  def expect[T1: FormExtractor, T2: FormExtractor, R](k1: String, k2: String)(fn: (T1, T2) => R): Option[R] = {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2))
      yield fn(p1, p2)
   }
 
-  def expect[T1: FormValueParser, T2: FormValueParser, T3: FormValueParser, R](k1: String, k2: String, k3: String)(fn: (T1, T2, T3) => R): Option[R] = {
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, R](k1: String, k2: String, k3: String)(fn: (T1, T2, T3) => R): Option[R] = {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3))
      yield fn(p1, p2, p3)
   }
 
-  def expect[T1: FormValueParser, T2: FormValueParser, T3: FormValueParser, T4: FormValueParser, R](k1: String, k2: String, k3: String, k4: String)(fn: (T1, T2, T3, T4) => R): Option[R] = {
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, R](k1: String, k2: String, k3: String, k4: String)(fn: (T1, T2, T3, T4) => R): Option[R] = {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4))
     yield fn(p1, p2, p3, p4)
   }
 
-  def expect[T1: FormValueParser, T2: FormValueParser, T3: FormValueParser, T4: FormValueParser, T5: FormValueParser, R](k1: String, k2: String, k3: String, k4: String, k5: String)(fn: (T1, T2, T3, T4, T5) => R): Option[R] = {
+  def expect[T1: FormExtractor, T2: FormExtractor, T3: FormExtractor, T4: FormExtractor, T5: FormExtractor, R](k1: String, k2: String, k3: String, k4: String, k5: String)(fn: (T1, T2, T3, T4, T5) => R): Option[R] = {
     for (p1 <- get[T1](k1); p2 <- get[T2](k2); p3 <- get[T3](k3); p4 <- get[T4](k4); p5 <- get[T5](k5))
     yield fn(p1, p2, p3, p4, p5)
   }
