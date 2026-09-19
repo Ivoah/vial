@@ -9,15 +9,10 @@ trait FormExtractor[T] {
 object FormExtractor {
   def get[T: FormExtractor as fe](f: Seq[(String, String | File)], k: String): Option[T] = fe.get(f, k)
 
-  given [T: ValueConverter] => FormExtractor[Seq[T]] {
-    def get(f: Seq[(String, String | File)], k: String): Option[Seq[T]] = {
-      val values = f.collect {
-        case (key, v) if key == k => ValueConverter.parse(v)
-      }.flatten
-      if (values.nonEmpty) Some(values) else None
-    }
+  given [T: ValueConverter] => FormExtractor[T]         = (f, k) => f.toMap.get(k).flatMap(ValueConverter.parse)
+  given [T: FormExtractor]  => FormExtractor[Option[T]] = (f, k) => Some(FormExtractor.get(f, k))
+  given [T: ValueConverter] => FormExtractor[Seq[T]]    = (f, k) => {
+    val values = f.filter(_._1 == k).map(t => ValueConverter.parse(t._2))
+    if (!values.exists(_.isEmpty)) Some(values.map(_.get)) else None
   }
-
-  given [T: FormExtractor] => FormExtractor[Option[T]] = (k, v) => Some(FormExtractor.get(k, v))
-  given [T: ValueConverter] => FormExtractor[T] = (f, k) => f.toMap.get(k).flatMap(ValueConverter.parse)
 }
